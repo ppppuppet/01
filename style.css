@@ -138,23 +138,28 @@ body {
 
 /* 外层容器：包裹所有元素，统一布局 */
         .model-container {
-            width: 1800px;
+            width: 100%;
+            max-width: 1800px;
             padding: 30px;
             border: 1px solid #eee;
             border-radius: 12px;
             margin: 20px auto;
             background-color: #fdfdfd;
+            box-sizing: border-box;
         }
         /* 文件上传区域 */
         .upload-area {
             margin-bottom: 25px;
         }
         .file-input {
-            padding: 20px 500px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-right: 10px;
+        padding: 20px 20px; /* 大幅减少左右内边距，避免超出 */
+        width: 100%; /* 占满父容器宽度 */
+        max-width: 500px; /* 限制最大宽度，不无限拉伸 */
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-right: 10px;
+        box-sizing: border-box;
         }
         .submit-btn {
             padding: 20px 20px;
