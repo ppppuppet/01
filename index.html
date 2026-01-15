@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0",user-scalable=no>
+    <title>medicine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <h1 class="brand"><a href="#">GDPU.Xu.lab</a></h1>
+        <ul>
+            <li><a href="https://link.springer.com/article/10.1186/s12859-020-3430-0">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Comtact</a></li>
+        </ul>
+        <div style="clear: both;"></div>
+    </nav>
+
+    <!-- 上部分：视觉滚动差区域 -->
+    <div class="parallax-container">
+        <img src="./图片/bj.png" id="mood" alt="木桌背景">
+        <img src="./图片/01.png" class="herb-img" id="herb1" alt="药材1">
+        <img src="./图片/02.png" class="herb-img" id="herb2" alt="药材2">
+        <h2 id="text">medicine</h2>
+    </div>
+
+    <!-- 下部分：药材介绍内容区域 -->
+    <div class="content-container">
+        <div class="content">
+            <h1>药材介绍</h1>
+            <p>这里是第一部分的详细介绍。...</p>
+            <p>这里是第二部分的详细介绍。...</p>
+            <p>这里是第三部分的详细介绍。...</p>
+            <p>这里是第四部分的详细介绍。...</p>
+            <p>这里是第五部分的详细介绍。...</p>
+            <p>这里是第六部分的详细介绍。...</p>
+            <p>这里是第七部分的详细介绍。...</p>
+            <p>这里是第八部分的详细介绍。...</p>
+            
+            <br>
+            <hr>
+
+            <h1>使用</h1>
+            <p>这里是使用说明...</p>
+        <div class="model-container">
+
+        <!-- 1. 文件上传区域 -->
+        <div class="upload-area">
+            <label for="file-upload">上传文件（适配模型输入）：</label>
+            <input type="file" id="file-upload" class="file-input" accept="*"> <!-- 可修改accept限制文件类型 -->
+            <button class="submit-btn" id="submit-btn" disabled>模型处理</button>
+        </div>
+        
+        
+        <!-- 2. 处理状态提示（加载中/成功/失败） -->
+        <div class="status-tip" id="status-tip">请上传文件并提交</div>
+        <hr>
+        <br>
+        <br>
+        <!-- 3. 模型生成结果区域（图片+说明） -->
+        <div class="result-area">
+            <!-- 生成图片的输出框 -->
+            <div class="generated-image-box" id="image-result-box">
+                <span class="no-result-tip">模型将在此生成图片</span>
+            </div>
+
+            <!-- 生成说明的文本框 -->
+            <div class="generated-desc-box" id="desc-result-box">
+                <span class="no-result-tip">模型将在此生成处理说明</span>
+            </div>
+        </div>
+        </div>
+        </div>
+ 
+    </div>
+
+    
+
+
+   
+<script>
+        <!----视觉滚动差---->
+        window.addEventListener('scroll', function() {
+            const scrollY = window.pageYOffset;
+            const containerHeight = document.querySelector('.parallax-container').offsetHeight;
+            // 计算延迟触发的阈值：容器高度的30%
+            const delayThreshold = containerHeight * 0.2;
+
+            if (scrollY < containerHeight) {
+                // 1. 第一张图（herb1）：无延迟，正常滚动
+                const herb1 = document.getElementById('herb1');
+                herb1.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.2}px))`;
+                
+                // 2. 第二张图（herb2）：延迟触发，滚动距离超过30%才开始动
+                const herb2 = document.getElementById('herb2');
+                if (scrollY > delayThreshold) {
+                    // 计算“超出延迟阈值的滚动距离”，再乘以移动系数
+                    const delayedScroll = scrollY - delayThreshold;
+                    herb2.style.transform = `translate(calc(-50%), calc(-50% + ${delayedScroll * 0.5}px))`;
+                } else {
+                    // 未达到延迟阈值时，保持初始位置
+                    herb2.style.transform = 'translate(-50%, -50%)';    
+                }
+            }
+        });
+
+
+         // 1. 获取所有DOM元素
+        const fileInput = document.getElementById('file-upload');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusTip = document.getElementById('status-tip');
+        const imageResultBox = document.getElementById('image-result-box');
+        const descResultBox = document.getElementById('desc-result-box');
+
+        // 2. 监听文件上传，允许提交按钮
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                submitBtn.disabled = false;
+                statusTip.textContent = `已选择文件：${file.name}`;
+            } else {
+                submitBtn.disabled = true;
+                statusTip.textContent = '请上传文件并提交';
+            }
+        });
+
+        // 3. 提交文件给深度学习模型（核心逻辑）
+        submitBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // 初始化状态：加载中
+            submitBtn.disabled = true;
+            statusTip.textContent = '正在调用模型处理...（请稍等）';
+            clearResult(); // 清空上一次结果
+
+            try {
+                // 🔴 核心：构建FormData（适配大多数模型接口，上传文件）
+                const formData = new FormData();
+                formData.append('file', file); // 'file'是接口参数名，需和你的模型接口一致
+
+                // 🟡 关键：调用你的深度学习模型接口（替换成你的模型地址）
+                const response = await fetch('http://你的模型接口地址:端口/process', {
+                    method: 'POST',
+                    body: formData,
+                    // 若模型接口需要权限（如token），添加headers，示例：
+                    // headers: { 'Authorization': 'Bearer 你的token' }
+                });
+
+                // 验证接口响应
+                if (!response.ok) throw new Error('模型处理失败');
+                const result = await response.json(); // 假设模型返回JSON格式（含图片+说明）
+
+                // 🟢 接收模型返回的结果（需和你的模型输出格式对应）
+                const generatedImageUrl = result.image_url; // 模型生成的图片地址
+                const generatedDesc = result.description; // 模型生成的说明文本
+
+                // 展示结果到页面
+                showResult(generatedImageUrl, generatedDesc);
+                statusTip.textContent = '模型处理完成✅';
+
+            } catch (error) {
+                // 错误处理（模型调用失败/网络错误）
+                statusTip.textContent = `处理失败：${error.message}`;
+                imageResultBox.innerHTML = '<span class="no-result-tip">图片生成失败</span>';
+                descResultBox.innerHTML = '<span class="no-result-tip">说明生成失败</span>';
+            } finally {
+                submitBtn.disabled = false; // 恢复提交按钮
+            }
+        });
+
+        // 辅助函数：清空结果
+        function clearResult() {
+            imageResultBox.innerHTML = '<span class="no-result-tip">模型将在此生成图片</span>';
+            descResultBox.innerHTML = '<span class="no-result-tip">模型将在此生成处理说明</span>';
+        }
+
+        // 辅助函数：展示结果（图片+说明）
+        function showResult(imgUrl, desc) {
+            // 展示生成的图片
+            const img = document.createElement('img');
+            img.src = imgUrl;
+            img.className = 'generated-image';
+            imageResultBox.innerHTML = '';
+            imageResultBox.appendChild(img);
+
+            // 展示生成的说明
+            descResultBox.textContent = desc || '模型未返回说明';
+        }
+</script>
+</body>
+</html>
